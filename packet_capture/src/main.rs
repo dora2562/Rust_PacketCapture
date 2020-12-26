@@ -1,3 +1,9 @@
+extern crate pnet;
+
+use pnet::datalink;
+
 fn main() {
-    println!("Hello, world!");
+    let interface = datalink::interfaces();
+
+    println!("{}", interface[2].name);
 }
