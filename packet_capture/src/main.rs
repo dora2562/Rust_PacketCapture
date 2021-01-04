@@ -14,7 +14,7 @@ fn handle_ethernet_frame(interface: &NetworkInterface, ethernet: &EthernetPacket
     match ethernet.get_ethertype() {
         EtherTypes::Ipv4 => {
             println!(
-                "{}: {} > {}", interface.name, ethernet.get_source(), ethernet.get_destination());
+                "{}: {} -> {}", interface.name, ethernet.get_source(), ethernet.get_destination());
             let ip = Ipv4Packet::new(ethernet.payload()).unwrap();
             handle_ip_packet(&interface, &ip)
         }
@@ -41,17 +41,15 @@ fn handle_ip_packet(interface: &NetworkInterface, ip: &Ipv4Packet) {
 }
 
 fn main() {
-    let iface_name = "eth0";
-    let interface_names_match = |iface: &NetworkInterface| iface.name == iface_name;
+    let capture_iface_name = "eth0";
+    let interface_names_match = |iface: &NetworkInterface| iface.name == capture_iface_name;
 
     let interfaces = datalink::interfaces();
     let interface = interfaces
         .into_iter()
         .filter(interface_names_match)
         .next()
-        .unwrap_or_else(|| panic!("No such network interface: {}", iface_name));
-
-    println!("{:?}", interface);
+        .unwrap_or_else(|| panic!("No such network interface: {}", capture_iface_name));
 
     let (_, mut rx) = match datalink::channel(&interface, Default::default()) {
         Ok(Ethernet(tx, rx)) => (tx, rx),
